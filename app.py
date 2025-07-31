@@ -128,45 +128,30 @@ with st.sidebar.expander("Deferential Privacy", expanded=False):
     epsilon = st.slider("LDP Epsilon", 0.0, 1.0, 0.0, step=0.01)
 
 # --- Sidebar: FL Strategy Configuration ---
-with st.sidebar.expander("Federated Strategy Configuration", expanded=True):
+with st.sidebar.expander("Federated Strategy Configuration", expanded=False):
     strategy = st.selectbox("Strategy", ["FedAvg", "FedAvgM", "FedNova", "FedMedian", "FedProx", "Multi-Krum", "OtherStrategy"])
     model = st.selectbox("Model", ["mobilenet_v2", "resnet18", "OtherModel"])
     num_clients = st.number_input("Number of Clients", min_value=3, max_value=10000, value=50, step=1)
     fraction_train_clients = st.slider("Fraction of Training Clients", 0.01, 1.0, 0.01, step=0.01)
     num_rounds = st.number_input("Number of Rounds", min_value=3, max_value=10000, value=5)
 
-with st.sidebar.expander("GPU", expanded=False):
+with st.sidebar.expander("GPU", expanded=True):
     def get_gpu_status():
         try:
-            output = subprocess.check_output([
-                "nvidia-smi",
-                "--query-gpu=index,name,memory.used,memory.total",
-                "--format=csv,nounits,noheader"
-            ])
+            output = subprocess.check_output(
+                ["nvidia-smi", "--query-gpu=index,memory.used,memory.total", "--format=csv,nounits,noheader"])
             lines = output.decode("utf-8").strip().split("\n")
-            # Return tuples: (index, name, used, total)
-            return [line.strip().split(", ") for line in lines]
+            return [tuple(map(int, line.split(","))) for line in lines]
         except Exception as e:
-            st.error(f"Failed to get GPU status: {e}")
             return []
 
 
     gpu_stats = get_gpu_status()
-    if gpu_stats:
-        st.markdown("### 🖥️ GPU Usage Summary")
-        for gpu_info in gpu_stats:
-            gpu_id, gpu_name, mem_used, mem_total = gpu_info
-            mem_used, mem_total = int(mem_used), int(mem_total)
-            status = "🟢 In Use" if mem_used > 50 else "⚪ Idle"
-            st.write(
-                f"**GPU {gpu_id} ({gpu_name})** — {status}  \n"
-                f"🔢 CUDA ID: `{gpu_id}`  \n"
-                f"💾 Memory Used: `{mem_used} MB / {mem_total} MB`"
-            )
-    else:
-        st.warning("No GPU detected or `nvidia-smi` not available.")
+    for gpu_id, mem_used, mem_total in gpu_stats:
+        status = "🟢 In Use" if mem_used > 50 else "⚪ Idle"
+        st.write(f"**GPU {gpu_id}** — {status} | Used: {mem_used} MB / {mem_total} MB")
 
-    st.markdown("### ⚙️ CUDA Configuration")
+
     use_cuda = st.checkbox("Use CUDA", value=True, help="Enable CUDA for GPU-accelerated training.")
     use_cuda = use_cuda and torch.cuda.is_available()
 
