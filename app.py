@@ -143,6 +143,20 @@ with st.sidebar.expander("Additional Configuration", expanded=False):
         st.sidebar.success("CUDA is enabled. GPU will be used for training.")
         st.multiselect("Select GPUs", options=[f"GPU {i}" for i in range(torch.cuda.device_count())], default=[f"GPU 0"], help="Select which GPUs to use for training.")
 # --- Main: Summary ---
+
+def get_gpu_status():
+    try:
+        output = subprocess.check_output(["nvidia-smi", "--query-gpu=index,memory.used,memory.total", "--format=csv,nounits,noheader"])
+        lines = output.decode("utf-8").strip().split("\n")
+        return [tuple(map(int, line.split(","))) for line in lines]
+    except Exception as e:
+        return []
+
+gpu_stats = get_gpu_status()
+for gpu_id, mem_used, mem_total in gpu_stats:
+    status = "🟢 In Use" if mem_used > 50 else "⚪ Idle"
+    st.write(f"**GPU {gpu_id}** — {status} | Used: {mem_used} MB / {mem_total} MB")
+
 with st.expander("📝 Summary of Experiment Configuration"):
     st.write("**Dataset**:", dataset)
     if subset:
