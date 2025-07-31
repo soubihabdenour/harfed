@@ -135,27 +135,44 @@ with st.sidebar.expander("Federated Strategy Configuration", expanded=True):
     fraction_train_clients = st.slider("Fraction of Training Clients", 0.01, 1.0, 0.01, step=0.01)
     num_rounds = st.number_input("Number of Rounds", min_value=3, max_value=10000, value=5)
 
-# --- Sidebar: Additional Configuration ---
-with st.sidebar.expander("Additional Configuration", expanded=False):
+with st.sidebar.expander("GPU", expanded=False):
+    def get_gpu_status():
+        try:
+            output = subprocess.check_output(
+                ["nvidia-smi", "--query-gpu=index,memory.used,memory.total", "--format=csv,nounits,noheader"])
+            lines = output.decode("utf-8").strip().split("\n")
+            return [tuple(map(int, line.split(","))) for line in lines]
+        except Exception as e:
+            return []
+
+
+    gpu_stats = get_gpu_status()
+    for gpu_id, mem_used, mem_total in gpu_stats:
+        status = "🟢 In Use" if mem_used > 50 else "⚪ Idle"
+        st.write(f"**GPU {gpu_id}** — {status} | Used: {mem_used} MB / {mem_total} MB")
     use_cuda = st.checkbox("Use CUDA", value=True, help="Enable CUDA for GPU-accelerated training.")
     use_cuda = use_cuda and torch.cuda.is_available()
+
     if use_cuda:
         st.sidebar.success("CUDA is enabled. GPU will be used for training.")
-        st.multiselect("Select GPUs", options=[f"GPU {i}" for i in range(torch.cuda.device_count())], default=[f"GPU 0"], help="Select which GPUs to use for training.")
+        available_gpus = [f"GPU {i}" for i in range(torch.cuda.device_count())]
+        selected_gpus = st.multiselect("Select GPUs", options=available_gpus, default=[f"GPU 0"], help="Select which GPUs to use for training.")
+
+        # Extract the GPU indices as a comma-separated string
+        selected_gpu_ids = [gpu.split(" ")[1] for gpu in selected_gpus]  # e.g., ["0", "1"]
+        cuda_visible_devices = ",".join(selected_gpu_ids)
+
+        st.code(f"CUDA_VISIBLE_DEVICES={cuda_visible_devices}", language="bash")
+
+        # Optionally set it for the current script
+        os.environ["CUDA_VISIBLE_DEVICES"] = cuda_visible_devices
+        st.success(f"Set CUDA_VISIBLE_DEVICES={cuda_visible_devices}")
+
+        # Check which GPU PyTorch will use
+        current_device = torch.cuda.current_device()
+        st.write(f"🚀 PyTorch is using: GPU {current_device} — {torch.cuda.get_device_name(current_device)}")
 # --- Main: Summary ---
 
-def get_gpu_status():
-    try:
-        output = subprocess.check_output(["nvidia-smi", "--query-gpu=index,memory.used,memory.total", "--format=csv,nounits,noheader"])
-        lines = output.decode("utf-8").strip().split("\n")
-        return [tuple(map(int, line.split(","))) for line in lines]
-    except Exception as e:
-        return []
-
-gpu_stats = get_gpu_status()
-for gpu_id, mem_used, mem_total in gpu_stats:
-    status = "🟢 In Use" if mem_used > 50 else "⚪ Idle"
-    st.write(f"**GPU {gpu_id}** — {status} | Used: {mem_used} MB / {mem_total} MB")
 
 with st.expander("📝 Summary of Experiment Configuration"):
     st.write("**Dataset**:", dataset)
