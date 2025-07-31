@@ -7,6 +7,8 @@ import threading
 import pandas as pd
 import matplotlib.pyplot as plt
 import io
+
+import torch
 from pynvml import *
 from flwr_datasets import FederatedDataset
 from flwr_datasets.partitioner import DirichletPartitioner
@@ -54,10 +56,31 @@ st.title("Federated Learning Experiment Dashboard")
 
 
 # --- Sidebar: Dataset Configuration ---
+dataset_options = {
+    "MNIST": "mnist",
+    "CIFAR-10": "cifar10",
+    "MedMNIST-v2": "albertvillanova/medmnist-v2",
+    "Other Dataset": "OtherDataset",
+}
+subset_options = {
+    "🩸 Blood MNIST": "bloodmnist",
+    "🧵 Tissue MNIST": "tissuemnist",
+    "🧫 Path MNIST": "pathmnist",
+    "🧑‍⚕️ Derma MNIST": "dermamnist",
+    "👁️ OCT MNIST": "octmnist",
+    "🧠 Breast MNIST": "breastmnist",
+    "🫁 Organ A MNIST": "organamnist",
+    "🫀 Organ C MNIST": "organcmnist",
+    "🧬 Organ S MNIST": "organsmnist",
+    None: None,
+}
 st.sidebar.title("Configuration Panel")
 with st.sidebar.expander("Dataset Configuration"):
-    dataset = st.selectbox("Dataset", ["mnist", "cifar10", "albertvillanova/medmnist-v2", "OtherDataset"])
-    subset = st.selectbox("Subset", ["bloodmnist", "tissuemnist", "pathmnist", "dermamnnist", "octmnist", "breastmnist", "organamnist", "organcmnist", "organsmnist"]) if dataset == "albertvillanova/medmnist-v2" else None
+    selected_label = st.selectbox("Dataset", list(dataset_options.keys()), help="Choose the dataset to use for the experiment.")
+    dataset = dataset_options[selected_label]
+
+    selected_subset_label = st.selectbox("Subset", list(subset_options.keys())) if dataset == "albertvillanova/medmnist-v2" else None
+    subset = subset_options[selected_subset_label]
     if dataset == "mnist":
         num_classes = 10
     elif dataset == "cifar10":
@@ -68,7 +91,7 @@ with st.sidebar.expander("Dataset Configuration"):
         num_classes = 8
     elif subset == "pathmnist":
         num_classes = 9
-    elif subset == "dermamnnist":
+    elif subset == "dermamnist":
         num_classes = 7
     elif subset == "octmnist":
         num_classes = 4
@@ -81,18 +104,17 @@ with st.sidebar.expander("Dataset Configuration"):
     elif subset == "organsmnist":
         num_classes = 11
     else:
-        num_classes = st.number_input("Number of Classes", min_value=1, max_value=100, value=10, step=1)
+        num_classes = st.number_input("Number of Classes", min_value=1, max_value=100, value=10, step=1, help="Specify the number of classes for the dataset.")
 
 
 
-    partitioner = st.selectbox("Partitioner", ["DirichletPartitioner", "PathologicalPartitioner", "IiD"])
+    partitioner = st.selectbox("Partitioner", ["DirichletPartitioner", "PathologicalPartitioner", "IiD"], help="Choose how to partition the dataset among clients.")
     if partitioner == "DirichletPartitioner":
         partition_param = "alpha"
-        partition_value = st.slider("Alpha Value", 0.01, 5.0, 0.3, step=0.01)
+        partition_value = st.slider("Alpha Value", 0.01, 5.0, 0.3, step=0.01, help="Dirichlet distribution parameter for partitioning.")
     elif partitioner == "PathologicalPartitioner":
-        st.sidebar.info("Requires number of classes per partition.")
         partition_param = "num_classes_per_partition"
-        partition_value = st.selectbox("Classes per Partition", ["2", "4", "7"])
+        partition_value = st.slider("Classes per Partition", 1, num_classes, 2, step=1, help="Number of classes per partition for pathological partitioning.")
     else:
         st.sidebar.info("No partition parameter required for IID.")
         partition_param = None
@@ -101,8 +123,9 @@ with st.sidebar.expander("Dataset Configuration"):
 # --- Sidebar: Attack Configuration ---
 with st.sidebar.expander("Attack Configuration"):
     attack = st.selectbox("Attack Type", ["adaptive-targeted", "untargeted", "none"])
-    epsilon = st.selectbox("LDP Epsilon", ["0", "0.1", "1", "10"])
-    fraction_mal_cli = st.selectbox("Fraction of Malicious Clients", ["0.2", "0.5", "0.8"])
+    fraction_mal_cli = st.slider("Fraction of Malicious Clients", 0.0, 1.0, 0.3, step=0.01) if attack != "none" else 0.0
+with st.sidebar.expander("Deferential Privacy", expanded=False):
+    epsilon = st.slider("LDP Epsilon", 0.0, 1.0, 0.0, step=0.01)
 
 # --- Sidebar: FL Strategy Configuration ---
 with st.sidebar.expander("Federated Strategy Configuration", expanded=True):
@@ -112,6 +135,13 @@ with st.sidebar.expander("Federated Strategy Configuration", expanded=True):
     fraction_train_clients = st.slider("Fraction of Training Clients", 0.01, 1.0, 0.01, step=0.01)
     num_rounds = st.number_input("Number of Rounds", min_value=3, max_value=10000, value=5)
 
+# --- Sidebar: Additional Configuration ---
+with st.sidebar.expander("Additional Configuration", expanded=False):
+    use_cuda = st.checkbox("Use CUDA", value=True, help="Enable CUDA for GPU-accelerated training.")
+    use_cuda = use_cuda and torch.cuda.is_available()
+    if use_cuda:
+        st.sidebar.success("CUDA is enabled. GPU will be used for training.")
+        st.multiselect("Select GPUs", options=[f"GPU {i}" for i in range(torch.cuda.device_count())], default=[f"GPU 0"], help="Select which GPUs to use for training.")
 # --- Main: Summary ---
 with st.expander("📝 Summary of Experiment Configuration"):
     st.write("**Dataset**:", dataset)
@@ -130,7 +160,8 @@ with st.expander("📝 Summary of Experiment Configuration"):
     st.write("**Clients**:", num_clients)
     st.write("**Rounds**:", num_rounds)
 
-visualize= st.checkbox("Show Dataset Partition Visualization", value=False)
+
+visualize= st.checkbox("Show Dataset Partition Visualization", value=False, help="Visualize the label distribution across partitions.")
 if visualize:
     num_partitions = int(num_clients)  # You may align with num_clients or customize
     if dataset == "albertvillanova/medmnist-v2":
@@ -222,6 +253,25 @@ if visualize:
     st.pyplot(fig, clear_figure=True, bbox_inches='tight')
     st.expander("Label Distribution DataFrame").dataframe(df)
     # st.dataframe(df)
+
+    show_samples = st.checkbox("Show Data Samples", value=False)
+
+    if show_samples:
+        st.markdown("### 🖼️ Data Samples")
+        try:
+            # Load a partition of the dataset
+            sample_ds = fds.load_partition(partition_id=0, split="train")
+            sample_df = pd.DataFrame(sample_ds[:10])  # Show first 10 samples
+
+            if "image" in sample_df.columns:
+                cols = st.columns(len(sample_df))
+                for i, row in enumerate(sample_df.itertuples()):
+                    with cols[i]:
+                        st.image(row.image, caption=f"Label: {row.label}", width=128)
+            else:
+                st.dataframe(sample_df)
+        except Exception as e:
+            st.warning(f"Could not load samples: {e}")
 
 
 
