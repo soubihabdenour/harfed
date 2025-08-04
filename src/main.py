@@ -11,7 +11,6 @@ from src.modules.partitioner import PartitionFactory
 from src.modules.plot import smooth_plot
 from src.modules.strategy import StrategyFactory
 
-
 @hydra.main(config_path='../config', config_name='main', version_base=None)
 def main(cfg: DictConfig):
     # Print the current configuration for reference

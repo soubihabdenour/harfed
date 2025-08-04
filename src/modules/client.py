@@ -65,7 +65,7 @@ class FlowerClient(fl.client.NumPyClient):
     def evaluate(self, parameters, config):
         """Evaluate the model using the validation dataset."""
         set_params(self.model, parameters)
-        valloader = DataLoader(self.valset, batch_size=64)
+        valloader = DataLoader(self.valset, batch_size=32)
 
         loss, accuracy, accuracy_excluding_poisoned, precision, recall, f1, asr, acc_target = test_specific_class_with_exclusion(self.model, valloader, device=self.device,
                                                                     specific_class=self.poison_label)

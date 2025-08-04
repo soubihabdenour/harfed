@@ -130,9 +130,10 @@ with st.sidebar.expander("Deferential Privacy", expanded=False):
 # --- Sidebar: FL Strategy Configuration ---
 with st.sidebar.expander("Federated Strategy Configuration", expanded=False):
     strategy = st.selectbox("Strategy", ["FedAvg", "FedAvgM", "FedNova", "FedMedian", "FedProx", "Multi-Krum", "OtherStrategy"])
-    model = st.selectbox("Model", ["mobilenet_v2", "resnet18", "OtherModel"])
+    model = st.selectbox("Model", ["mobilenet_v3_small", "mobilenet_v3_large", "mobilenet_v2", "resnet18", "OtherModel", "vgg16", "efficientnet_b0", "densenet121", "resnet101"],
+                         help="Choose the model architecture for the experiment.")
     num_clients = st.number_input("Number of Clients", min_value=3, max_value=10000, value=50, step=1)
-    fraction_train_clients = st.slider("Fraction of Training Clients", 0.01, 1.0, 0.01, step=0.01)
+    fraction_train_clients = st.slider("Fraction of Training Clients", 0.01, 1.0, 0.1, step=0.01)
     num_rounds = st.number_input("Number of Rounds", min_value=3, max_value=10000, value=5)
 
 with st.sidebar.expander("GPU", expanded=True):
@@ -156,6 +157,7 @@ with st.sidebar.expander("GPU", expanded=True):
     use_cuda = use_cuda and torch.cuda.is_available()
 
     if use_cuda:
+
         st.sidebar.success("CUDA is enabled. GPU will be used for training.")
         available_gpus = [f"GPU {i}" for i in range(torch.cuda.device_count())]
         selected_gpus = st.multiselect("Select GPUs", options=available_gpus, default=[f"GPU 0"], help="Select which GPUs to use for training.")
@@ -173,6 +175,10 @@ with st.sidebar.expander("GPU", expanded=True):
         # Check which GPU PyTorch will use
         current_device = torch.cuda.current_device()
         st.write(f"🚀 PyTorch is using: GPU {current_device} — {torch.cuda.get_device_name(current_device)}")
+        num_gpus = st.slider("Fraction of client pr resources", 0.01, 1.0, 1.0, step=0.01, help="Fraction of resources allocated to each client during training.")
+    else:
+        num_gpus = 0
+        st.sidebar.warning("CUDA is not available. Training will use CPU only.")
 # --- Main: Summary ---
 
 
@@ -330,6 +336,7 @@ if submitted:
             f"strategy.num_rounds={num_rounds} "
             f"client.count={num_clients} "
             f"strategy.fraction_train_clients={fraction_train_clients} "
+            f"client.resources.num_gpus={num_gpus} "
         )
         if partition_param:
             cmd += f"dataset.partitioner.{partition_param}={partition_value} "
@@ -361,6 +368,8 @@ if submitted:
     finally:
         tracker.stop()
         df = tracker.get_dataframe()
+        if not os.path.exists(output_dir):
+                    os.makedirs(output_dir, exist_ok=True)
         csv_path = os.path.join(output_dir, "gpu_stats.csv")
         df.to_csv(csv_path, index=False)
 

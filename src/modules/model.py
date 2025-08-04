@@ -9,6 +9,20 @@ def mobilenet_v2(**kwargs):
     model.classifier[1] = nn.Linear(model.last_channel, num_classes)
     return model
 
+def mobilenet_v3_large(**kwargs):
+    num_classes = kwargs.get('num_classes', 8)
+    model = models.mobilenet_v3_large(weights=models.MobileNet_V3_Large_Weights.DEFAULT)
+    model.classifier[3] = nn.Linear(model.classifier[3].in_features, num_classes)
+    model.hidden_dimension = model.classifier[3].in_features
+    return model
+
+def mobilenet_v3_small(**kwargs):
+    num_classes = kwargs.get('num_classes', 8)
+    model = models.mobilenet_v3_small(weights=models.MobileNet_V3_Small_Weights.DEFAULT)
+    model.classifier[3] = nn.Linear(model.classifier[3].in_features, num_classes)
+    model.hidden_dimension = model.classifier[3].in_features
+    return model
+
 
 def resnet101(**kwargs):
     num_classes = kwargs.get('num_classes', 8)
@@ -68,5 +82,9 @@ class ModelFactory:
             return efficientnet_b0(**config.model)
         if model_name == 'densenet121':
             return densenet121(**config.model)
+        if model_name == 'mobilenet_v3_large':
+            return mobilenet_v3_large(**config.model)
+        if model_name == 'mobilenet_v3_small':
+            return mobilenet_v3_small(**config.model)
         else:
             raise ValueError(f"Unknown model name: {model_name}")
