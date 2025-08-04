@@ -160,7 +160,7 @@ with st.sidebar.expander("GPU", expanded=True):
 
         st.sidebar.success("CUDA is enabled. GPU will be used for training.")
         available_gpus = [f"GPU {i}" for i in range(torch.cuda.device_count())]
-        selected_gpus = st.multiselect("Select GPUs", options=available_gpus, default=[f"GPU 0"], help="Select which GPUs to use for training.")
+        selected_gpus = st.multiselect("Select GPUs", options=available_gpus, default=[f"GPU 1"], help="Select which GPUs to use for training.")
 
         # Extract the GPU indices as a comma-separated string
         selected_gpu_ids = [gpu.split(" ")[1] for gpu in selected_gpus]  # e.g., ["0", "1"]
