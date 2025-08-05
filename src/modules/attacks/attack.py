@@ -383,14 +383,13 @@ class AttackFactory:
         type = config.poisoning.attack_type
         if name == "ar":
             return AutoRegressorAttack(config)
-        elif name == "label-flipping":
-            if type == "targeted":
-                return TargetedLabelFlipAttack(config)
-            elif type == "untargeted":
-                return LabelFlipAttack(config)
-            elif type == "adaptive-targeted":
-                return AdaptiveTargetedLabelFlipAttack(config)
-            else:
-                return NotImplementedError("The Attack type you are trying to use is not implemented yet.")
+        elif name == "targeted-lf":
+            return TargetedLabelFlipAttack(config)
+        elif name == "untargeted-lf":
+            return LabelFlipAttack(config)
+        elif name == "adaptive-targeted-lf":
+            return AdaptiveTargetedLabelFlipAttack(config)
+        elif name == "none":
+            return None
         else:
-            raise NotImplementedError("The Attack you are trying to use is not implemented yet.")
+            return NotImplementedError("The Attack type you are trying to use is not implemented yet.")

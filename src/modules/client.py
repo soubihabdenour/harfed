@@ -37,7 +37,7 @@ class FlowerClient(fl.client.NumPyClient):
 
         fraction = float(config.poisoning.fraction)
         r = np.random.random(1)[0]
-        if r < fraction:
+        if r < fraction and config.poisoning.name != "none":
             print(f"client {client_id} is poisoned------------------------------------")
             self.attack = AttackFactory.create_attack(config)
         else:
