@@ -36,7 +36,12 @@ The Harfed application provides a streamlined interface for setting up and condu
 ---
 
 ## Usage Instructions
-
+1. **Create vertual envirement**
+2. Make sure you have conda installed
+2. '''
+3. conda create -n harfed python=3.10
+4. conda activate harfed
+7. '''
 1. **Install dependencies**:
    Ensure you have Python 3.10+ and install the required packages using `pip`:
    ```
