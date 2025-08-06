@@ -1,7 +1,7 @@
-# HARFed
+# harfed
 Heterogeneity, Attacks, and Robustness in Federated Learning
 
-This repository contains a Streamlit-based interactive application named **Harfed**, dedicated to configuring and running Federated Learning (FL) experiments with detailed visualization and monitoring. The app features an intuitive UI with comprehensive visualizations and real-time monitoring capabilities. It has been utilized in the research and experiments presented in our published paper: [Towards Robust Federated Learning: Investigating Poisoning Attacks Under Clients Data Heterogeneity](https://ieeexplore.ieee.org/document/10857574).
+This repository contains a Streamlit-based interactive application named **Harfed**, dedicated to configuring and running Federated Learning (FL) experiments with detailed visualization and monitoring. The app has been utilized in the research and experiments presented in our published paper: [Towards Robust Federated Learning: Investigating Poisoning Attacks Under Clients Data Heterogeneity](https://ieeexplore.ieee.org/document/10857574).
 
 ---
 
@@ -36,12 +36,7 @@ The Harfed application provides a streamlined interface for setting up and condu
 ---
 
 ## Usage Instructions
-1. **Create vertual envirement**
-2. Make sure you have conda installed
-2. '''
-3. conda create -n harfed python=3.10
-4. conda activate harfed
-7. '''
+
 1. **Install dependencies**:
    Ensure you have Python 3.10+ and install the required packages using `pip`:
    ```
@@ -51,34 +46,43 @@ The Harfed application provides a streamlined interface for setting up and condu
 2. **Launch the Streamlit app**:
    Run the following command to start the Streamlit application:
    ```
-   streamlit run app.py
+   streamlit run run_experiment.py
    ```
 
 3. **Configure the experiment**:
-   - Use the sidebar panels to configure all aspects of your experiment:
-     - 📊 **Dataset Configuration**: Select datasets, subsets, and partitioning strategies
-     - 🛡️ **Attack Configuration**: Configure attack types and malicious client fractions
-     - 🔒 **Differential Privacy**: Set privacy parameters
-     - ⚙️ **Federated Strategy**: Choose FL algorithms, models, and training parameters
-     - 🖥️ **GPU Configuration**: Manage GPU resources and allocation
+   - Use the sidebar to select the dataset, partitioner, and attack configurations.
+   - Set Federated Learning strategies, the number of clients, and training rounds as needed.
 
-4. **Visualize data distribution**:
-   - Enable the dataset partition visualization to see how data is distributed across clients
-   - View label distributions across partitions with interactive charts
-   - Examine sample data from clients with the image gallery feature
-   - Download visualizations and distribution data for your records
+4. **Visualize and monitor**:
+   - Enable dataset partition visualization for insights into the data distribution.
+
+
+   - Observe live GPU metrics and logs while the experiment is running.
 
 5. **Run the experiment**:
-   - Review the experiment summary in the expandable section
-   - Click the "▶️ Run Experiment" button to start the training process
-   - Monitor progress with the real-time progress bar and status updates
-   - View live logs during execution to track training progress
+   - Click on the "Run Experiment" button to execute the experiment.
+   - The app generates logs and results at the specified output directory.
 
-6. **Analyze results**:
-   - Examine final metrics (accuracy, attack success rate) in the results dashboard
-   - Explore interactive charts showing performance over training rounds
-   - View GPU utilization statistics with detailed graphs
-   - Download all results, charts, and data in various formats (CSV, PNG, PDF)
+6. **View and download results**:
+   - Check the results section for accuracy and ASR plots.
+   - Download visualization graphs in PNG or PDF format.
+   - Access raw results and GPU stats as CSV files.
+
+---
+
+## Screenshots
+
+### **1. Dataset Partition Visualization**
+![Screenshot 1 - Dataset Configuration](screenshots/Screenshot%20from%202025-08-06%2013-31-32.png)
+
+![Screenshot 2 - Dataset Partition Visualization](screenshots/Screenshot%20from%202025-08-06%2013-32-52.png)
+
+### **2. Real-time Monitoring**
+![Screenshot 3 - Real-time Monitoring](screenshots/Screenshot%20from%202025-08-06%2013-37-49.png)
+
+### **3. Results Visualization**
+![Screenshot 4 - Results Visualization](screenshots/Screenshot%20from%202025-08-06%2013-40-47.png)
+![Screenshot 5 - Results Visualization](screenshots/Screenshot%20from%202025-08-06%2013-41-07.png)
 
 ---
 
