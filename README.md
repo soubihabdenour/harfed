@@ -89,4 +89,4 @@ The Harfed application provides a streamlined interface for setting up and condu
 ## Citation
 
 If you find this code useful in your research, please cite the paper:
-[Exploring Heterogeneity, Attacks, and Robustness in Federated Learning](https://ieeexplore.ieee.org/document/10857574)
+[Towards Robust Federated Learning: Investigating Poisoning Attacks Under Clients Data Heterogeneity](https://ieeexplore.ieee.org/document/10857574)
