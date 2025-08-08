@@ -6,7 +6,7 @@ poisoning:
   size: [28,28]
 
 
-  fraction: 0.3
+  fraction: 0.5
 
   attack_type: "targeted" # "untargeted" or "targeted" or "adaptive-targeted"
   poison_label: 5

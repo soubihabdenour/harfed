@@ -10,7 +10,7 @@ strategy:
     local_batch_size: 8
     local_val_batch_size: 16
 
-  num_rounds: 3
+  num_rounds: 10
   device: "cuda" # "cuda" or "cpu"
   total_gpus: 1
   total_cpus: 32

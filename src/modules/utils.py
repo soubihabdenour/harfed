@@ -52,7 +52,7 @@ def apply_transforms(batch: dict) -> dict:
         dict: Batch with transformed images.
     """
     transform = Compose([
-        Resize((224, 224)),
+        Resize((32, 32)),
         Grayscale(num_output_channels=3),  # Convert grayscale to 3 channels
         ToTensor(),
         Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])  # ImageNet mean and std normalization
@@ -243,7 +243,7 @@ def test_specific_class_with_exclusion(
 
     # Specific class ASR (attack success rate)
     specific_class_acc = (correct_class / total_class) if total_class > 0 else 0.0
-    asr = accuracy_excluding_poisoned - specific_class_acc
+    asr = 1 - specific_class_acc
     print(f"Precision: {precision}, Recall: {recall}, F1: {f1}")
     print(f"Normal Accuracy: {normal_accuracy * 100:.2f}%")
     print(f"Accuracy Excluding Poisoned Class: {accuracy_excluding_poisoned * 100:.2f}%")
@@ -251,6 +251,7 @@ def test_specific_class_with_exclusion(
     print(f"ASR: {asr * 100:.2f}%")
 
     return total_loss, normal_accuracy, accuracy_excluding_poisoned, precision, recall, f1, asr, specific_class_acc
+
 
 
 def test_with_attack_success_rate(
@@ -333,3 +334,5 @@ def test_with_attack_success_rate(
     print(f"Precision: {precision}, Recall: {recall}, F1: {f1}, FPR: {fpr}, Clean Accuracy: {clean_accuracy}, ASR: {asr}")
 
     return total_loss, accuracy, precision, recall, f1, fpr, clean_accuracy, asr
+
+

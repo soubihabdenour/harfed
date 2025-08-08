@@ -110,8 +110,8 @@ def privacy_config_panel():
 
 def strategy_config_panel(num_classes):
     with st.sidebar.expander("⚙️ Federated Strategy Configuration", expanded=False):
-        strategy = st.selectbox("Strategy", ["FedAvg", "FedAvgM", "FedNova", "FedMedian", "FedProx", "Multi-Krum", "OtherStrategy"])
-        model = st.selectbox("Model", ["mobilenet_v3_small", "mobilenet_v3_large", "mobilenet_v2", "resnet18", "vgg16", "efficientnet_b0", "densenet121", "resnet101"])
+        strategy = st.selectbox("Strategy", ["FedAvg", "FedAvgM", "FedNova", "FedProx"])
+        model = st.selectbox("Model", ["mobilenet_v3_small", "mobilenet_v3_large", "mobilenet_v2", "resnet18", "vgg16", "efficientnet_b0", "resnet101"])
         num_clients = st.number_input("Number of Clients", min_value=3, max_value=10000, value=50, step=1)
         fraction_train_clients = st.slider("Fraction of Training Clients", 0.01, 1.0, 0.1, step=0.01)
         num_rounds = st.number_input("Number of Rounds", min_value=3, max_value=10000, value=5)
@@ -340,7 +340,7 @@ def visualize_partitions(dataset, subset, partitioner, partition_param, partitio
             except Exception as e:
                 st.error(f"Could not load samples: {e}")
 
-def run_experiment(strategy, model, dataset, partitioner, partition_value, subset, num_rounds, num_clients, fraction_train_clients, num_gpus, partition_param, num_classes, epsilon, fraction_mal_cli):
+def run_experiment(strategy, model, dataset, partitioner, partition_value, subset, num_rounds, num_clients, fraction_train_clients, num_gpus, partition_param, num_classes, epsilon, fraction_mal_cli, attack):
     st.markdown("## 🚀 Launch Experiment")
     st.markdown("---")
     
@@ -366,6 +366,8 @@ def run_experiment(strategy, model, dataset, partitioner, partition_value, subse
                 f"client.count={num_clients} "
                 f"strategy.fraction_train_clients={fraction_train_clients} "
                 f"client.resources.num_gpus={num_gpus} "
+                f"poisoning.name={attack} "
+                f"poisoning.fraction={fraction_mal_cli} "
             )
             if partition_param:
                 cmd += f"dataset.partitioner.{partition_param}={partition_value} "
@@ -568,4 +570,4 @@ strategy, model, num_clients, fraction_train_clients, num_rounds = strategy_conf
 use_cuda, selected_gpus, num_gpus = gpu_config_panel()
 show_summary(dataset, subset, partitioner, partition_param, partition_value, attack, epsilon, fraction_mal_cli, strategy, fraction_train_clients, model, num_classes, num_clients, num_rounds)
 visualize_partitions(dataset, subset, partitioner, partition_param, partition_value, num_clients)
-run_experiment(strategy, model, dataset, partitioner, partition_value, subset, num_rounds, num_clients, fraction_train_clients, num_gpus, partition_param, num_classes, epsilon, fraction_mal_cli)
+run_experiment(strategy, model, dataset, partitioner, partition_value, subset, num_rounds, num_clients, fraction_train_clients, num_gpus, partition_param, num_classes, epsilon, fraction_mal_cli, attack)

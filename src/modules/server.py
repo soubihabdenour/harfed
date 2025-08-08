@@ -12,7 +12,8 @@ from torch import optim
 from torch.utils.data import DataLoader
 
 from src.modules.attacks.attack import Benin
-from src.modules.utils import test, apply_transforms, test_specific_class_with_exclusion, train
+from src.modules.utils import test, apply_transforms, test_specific_class_with_exclusion, train, \
+    test_with_attack_success_rate
 from src.modules.model import ModelFactory
 
 
@@ -147,12 +148,16 @@ class ServerFactory:
             optimizer = optim.Adam(model.parameters(), lr=0.001)
             train(model, testloader, optimizer, Benin(),epochs=3, device=device)
 
-            loss, accuracy, accuracy_excluding_poisoned, precision, recall, f1, asr, accuracy_target = test_specific_class_with_exclusion(model,
-                                                                        testloader,
-                                                                        device=device,
-                                                                        specific_class=conf.poisoning.poison_label)
+            # loss, accuracy, accuracy_excluding_poisoned, precision, recall, f1, asr, accuracy_target = test_specific_class_with_exclusion(model,
+            #                                                             testloader,
+            #                                                             device=device,
+            #                                                             specific_class=conf.poisoning.poison_label)
+
+            loss, accuracy, precision, recall, f1, fpr, accuracy_excluding_poisoned, asr = test_with_attack_success_rate(model,
+                                                                        testloader, device=device, poison_label=conf.poisoning.poison_label,
+                                                                        target_label=conf.poisoning.target_label)
 
             return loss, {"accuracy": accuracy, "precision": precision, "recall": recall, "f1_score": f1,
-                          "accuracy_excluding_poisoned": accuracy_excluding_poisoned, "accuracy_target": accuracy_target, "asr": asr}
+                          "accuracy_excluding_poisoned": accuracy_excluding_poisoned,  "asr": asr}
 
         return evaluate
