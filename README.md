@@ -1,4 +1,4 @@
-# HARFed
+# HARFed: Federated Learning Experiment Similator
 Heterogeneity, Attacks, and Robustness in Federated Learning
 
 This repository contains a Streamlit-based interactive application named **Harfed**, dedicated to configuring and running Federated Learning (FL) experiments with detailed visualization and monitoring. The app has been utilized in the research and experiments presented in our published paper: [Towards Robust Federated Learning: Investigating Poisoning Attacks Under Clients Data Heterogeneity](https://ieeexplore.ieee.org/document/10857574).
