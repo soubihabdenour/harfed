@@ -1,5 +1,5 @@
 dataset:
-  name: "albertvillanova/medmnist-v2" # dataset name on Hugging Face [ "BahaaEldin0/NIH-Chest-Xray-14", BahaaEldin0/NIH-Chest-Xray-14-with-Augmentation, "hf-vision/chest-xray-pneumonia", "marmal88/skin_cancer", SilpaCS/Augmented_alzheimer]
+  name: "cifar10" # dataset name on Hugging Face [ "BahaaEldin0/NIH-Chest-Xray-14", BahaaEldin0/NIH-Chest-Xray-14-with-Augmentation, "hf-vision/chest-xray-pneumonia", "marmal88/skin_cancer", SilpaCS/Augmented_alzheimer]
   subset: "bloodmnist" # subset of the dataset ["tissuemnist", "pathmnist", "breastmnist", "organmnist_axial", "organmnist_coronal", "organmnist_sagittal"]
   data_dir: "./data"
 

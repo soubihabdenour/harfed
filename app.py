@@ -559,8 +559,8 @@ def show_results(output_dir):
         st.warning("⚠️ No results.csv found. Experiment may not have logged output.")
 
 # --- Main ---
-st.set_page_config(page_title="Harfed - FL Experiment Similator", page_icon="🔄", layout="wide")
-st.title("🔄 Harfed: Federated Learning Experiment Similator")
+st.set_page_config(page_title="Harfed - FL Experiment Simulator", page_icon="🔄", layout="wide")
+st.title("🔄 Harfed: Federated Learning Experiment Simulator")
 st.markdown("*Heterogeneity, Attacks, and Robustness in Federated Learning*")
 st.markdown("---")
 dataset, subset, num_classes, partitioner, partition_param, partition_value = dataset_config_panel()
